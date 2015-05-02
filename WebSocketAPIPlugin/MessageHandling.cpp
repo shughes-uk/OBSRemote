@@ -37,6 +37,7 @@ void OBSAPIMessageHandler::initializeMessageMap()
     messageMap[REQ_TOGGLE_MUTE] =                       OBSAPIMessageHandler::HandleToggleMute;
     messageMap[REQ_GET_VOLUMES] =                       OBSAPIMessageHandler::HandleGetVolumes;
     messageMap[REQ_SET_VOLUME] =                        OBSAPIMessageHandler::HandleSetVolume;
+	messageMap[REQ_SET_PROFILE] =						OBSAPIMessageHandler::HandleSetProfile;
 
     messagesNotRequiringAuth.insert(REQ_GET_VERSION);
     messagesNotRequiringAuth.insert(REQ_GET_AUTH_REQUIRED);
@@ -403,9 +404,19 @@ json_t* OBSAPIMessageHandler::HandleStartStopStreaming(OBSAPIMessageHandler* han
     {
         OBSStartStopPreview();
     }
-    else
-    {
-        OBSStartStopStream();
+	else
+	{
+		if (OBSGetStreaming())
+		{
+			OBSStartStopStream();
+			if (OBSGetRecording() && !OBSGetKeepRecording())
+			{
+				OBSStartStopRecording();
+			}
+		}else
+		{
+			OBSStartStopStream();
+		}		
     }
     return GetOkResponse();
 }
@@ -501,6 +512,20 @@ json_t* OBSAPIMessageHandler::HandleSetVolume(OBSAPIMessageHandler* handler, jso
     }
     return GetOkResponse();
 }
+json_t* OBSAPIMessageHandler::HandleSetProfile(OBSAPIMessageHandler* handler, json_t* message)
+{
+	json_t* profileName = json_object_get(message, "profileName");
+
+	if (profileName != NULL && json_typeof(profileName) == JSON_STRING)
+	{
+		String name = json_string_value(profileName);
+
+		OBSSetProfile(name);
+	}
+	return GetOkResponse();
+}
+
+
 
 /* OBS Trigger Handler */
 WebSocketOBSTriggerHandler::WebSocketOBSTriggerHandler()

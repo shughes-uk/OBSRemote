@@ -45,6 +45,8 @@
 #define REQ_GET_VOLUMES "GetVolumes"
 #define REQ_SET_VOLUME "SetVolume"
 
+#define REQ_SET_PROFILE "SetProfile"
+
 struct OBSAPIMessageHandler;
 
 typedef json_t*(*MessageFunction)(OBSAPIMessageHandler*, json_t*);
@@ -83,6 +85,7 @@ struct OBSAPIMessageHandler
     static json_t* HandleToggleMute(OBSAPIMessageHandler* handler, json_t* message);
     static json_t* HandleGetVolumes(OBSAPIMessageHandler* handler, json_t* message);
     static json_t* HandleSetVolume(OBSAPIMessageHandler* handler, json_t* message);
+	static json_t* HandleSetProfile(OBSAPIMessageHandler* handler, json_t* message);
 
     struct libwebsocket *wsi;
     
